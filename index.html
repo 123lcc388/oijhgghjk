@@ -1,518 +1,433 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>焰色反应实验小游戏</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: #fff;
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            max-width: 1000px;
-            width: 100%;
-            background: rgba(10, 25, 40, 0.85);
-            border-radius: 25px;
-            padding: 30px;
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(100, 200, 255, 0.3);
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(100, 200, 255, 0.2);
-        }
-        
-        h1 {
-            font-size: 2.8rem;
-            margin-bottom: 10px;
-            background: linear-gradient(to right, #ff9a00, #ff4500, #ff0080);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 15px rgba(255, 100, 0, 0.5);
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 700px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-        
-        .lab-area {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        
-        .flame-container {
-            flex: 1;
-            min-width: 300px;
-            background: rgba(0, 10, 20, 0.7);
-            border-radius: 20px;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 1px solid rgba(100, 200, 255, 0.2);
-        }
-        
-        .flame-title {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #ff9a00;
-        }
-        
-        .bunsen-burner {
-            width: 120px;
-            height: 180px;
-            position: relative;
-            margin: 20px 0;
-        }
-        
-        .burner-base {
-            width: 100px;
-            height: 30px;
-            background: linear-gradient(to bottom, #444, #222);
-            border-radius: 5px;
-            position: absolute;
-            bottom: 0;
-            left: 10px;
-        }
-        
-        .burner-tube {
-            width: 20px;
-            height: 100px;
-            background: linear-gradient(to right, #555, #333);
-            position: absolute;
-            bottom: 30px;
-            left: 50px;
-        }
-        
-        .flame {
-            position: absolute;
-            top: -100px;
-            left: 40px;
-            width: 80px;
-            height: 120px;
-            border-radius: 50% 50% 30% 30%;
-            background: conic-gradient(from 0deg, 
-                #ff4500, #ff8c00, #ffd700, #ff8c00, #ff4500);
-            filter: blur(5px);
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        
-        .flame.active {
-            opacity: 1;
-        }
-        
-        .flame-core {
-            position: absolute;
-            top: -60px;
-            left: 55px;
-            width: 30px;
-            height: 60px;
-            border-radius: 50% 50% 30% 30%;
-            background: conic-gradient(from 0deg, 
-                #ffffff, #ffff99, #ffffff);
-            filter: blur(3px);
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        
-        .flame-core.active {
-            opacity: 1;
-        }
-        
-        .chemicals {
-            flex: 1;
-            min-width: 300px;
-            background: rgba(0, 10, 20, 0.7);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid rgba(100, 200, 255, 0.2);
-        }
-        
-        .chemicals-title {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #4facfe;
-            text-align: center;
-        }
-        
-        .chemical-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-        }
-        
-        .chemical-item {
-            background: rgba(30, 50, 80, 0.7);
-            border-radius: 15px;
-            padding: 15px 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(100, 200, 255, 0.1);
-        }
-        
-        .chemical-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 150, 255, 0.4);
-            border-color: rgba(100, 200, 255, 0.4);
-        }
-        
-        .chemical-item.selected {
-            background: rgba(0, 100, 200, 0.5);
-            border-color: #4facfe;
-            box-shadow: 0 0 15px rgba(79, 172, 254, 0.6);
-        }
-        
-        .chemical-name {
-            font-weight: bold;
-            margin-top: 8px;
-            font-size: 0.95rem;
-        }
-        
-        .info-panel {
-            background: rgba(0, 20, 40, 0.7);
-            border-radius: 20px;
-            padding: 25px;
-            margin-top: 20px;
-            border: 1px solid rgba(100, 200, 255, 0.2);
-        }
-        
-        .info-title {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: #00f2fe;
-            text-align: center;
-        }
-        
-        .info-content {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .info-text {
-            flex: 1;
-            min-width: 300px;
-            line-height: 1.7;
-        }
-        
-        .color-display {
-            flex: 1;
-            min-width: 200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .color-box {
-            width: 150px;
-            height: 150px;
-            border-radius: 20px;
-            margin: 15px 0;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
-        }
-        
-        .instructions {
-            background: rgba(0, 30, 60, 0.6);
-            border-radius: 15px;
-            padding: 15px;
-            margin-top: 15px;
-            font-style: italic;
-            line-height: 1.6;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 20px 0;
-            margin-top: 20px;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(100, 200, 255, 0.2);
-        }
-        
-        @media (max-width: 768px) {
-            .lab-area {
-                flex-direction: column;
-            }
-            
-            h1 {
-                font-size: 2.2rem;
-            }
-        }
-        
-        /* 火焰动画 */
-        @keyframes flicker {
-            0%, 100% { opacity: 0.8; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
-        }
-        
-        .flame.active, .flame-core.active {
-            animation: flicker 1.5s infinite alternate;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>五子棋 · 聪明AI版</title>
+  <style>
+    /* ...（样式部分保持不变，为节省篇幅略去，实际使用时保留上一版全部CSS）... */
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      background: #f9f4eb;
+      text-align: center;
+      padding: 15px;
+      margin: 0;
+    }
+    .container {
+      max-width: 620px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    #info {
+      display: flex;
+      justify-content: space-around;
+      margin: 12px 0;
+      font-size: 16px;
+      color: #555;
+    }
+    #status {
+      font-size: 20px;
+      font-weight: bold;
+      height: 28px;
+      margin: 10px 0;
+    }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(15, 30px);
+      grid-template-rows: repeat(15, 30px);
+      gap: 1px;
+      background-color: #c9a476;
+      padding: 10px;
+      margin: 0 auto;
+      border: 2px solid #8b5a2b;
+      border-radius: 4px;
+      position: relative;
+    }
+    .cell {
+      width: 30px;
+      height: 30px;
+      background-color: #f5d5b1;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      transition: background 0.2s;
+    }
+    .cell:hover {
+      background-color: #e8c4a0;
+    }
+    .cursor {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border: 2px dashed #ff5722;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10;
+      box-sizing: border-box;
+    }
+    .controls {
+      margin-top: 15px;
+    }
+    button {
+      padding: 8px 14px;
+      font-size: 15px;
+      margin: 0 6px;
+      border: none;
+      border-radius: 6px;
+      background: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover:not(:disabled) {
+      background: #45a049;
+    }
+    button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+    .mode-toggle {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .mode-toggle label {
+      margin: 0 8px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🔥 焰色反应实验</h1>
-            <p class="subtitle">通过灼烧不同金属盐，观察火焰呈现的特征颜色，探索元素的光谱之美</p>
-        </header>
-        
-        <div class="lab-area">
-            <div class="flame-container">
-                <h2 class="flame-title">本生灯火焰</h2>
-                <div class="bunsen-burner">
-                    <div class="burner-base"></div>
-                    <div class="burner-tube"></div>
-                    <div class="flame" id="flame"></div>
-                    <div class="flame-core" id="flame-core"></div>
-                </div>
-                <p style="text-align: center; opacity: 0.8;">点击下方化学物质进行实验</p>
-            </div>
-            
-            <div class="chemicals">
-                <h2 class="chemicals-title">金属盐样品</h2>
-                <div class="chemical-list" id="chemical-list">
-                    <!-- 化学品将通过JavaScript动态生成 -->
-                </div>
-            </div>
-        </div>
-        
-        <div class="info-panel">
-            <h2 class="info-title">实验信息</h2>
-            <div class="info-content">
-                <div class="info-text">
-                    <p id="element-info">请选择一种金属盐进行实验...</p>
-                    <div class="instructions">
-                        <p><strong>实验原理：</strong>当金属或它们的化合物在无色火焰中灼烧时，原子中的电子吸收能量被激发到高能级，当电子回到低能级时会以特定波长的光释放能量，从而产生特征焰色。</p>
-                    </div>
-                </div>
-                <div class="color-display">
-                    <h3>火焰颜色</h3>
-                    <div class="color-box" id="color-display">
-                        选择样品
-                    </div>
-                    <p id="color-name">-</p>
-                </div>
-            </div>
-        </div>
-        
-        <footer>
-            <p>焰色反应实验小游戏 | 化学教育工具 | 安全虚拟实验</p>
-            <p>注意：真实焰色反应需在专业指导下进行，涉及高温和化学品</p>
-        </footer>
+  <div class="container">
+    <h1>⚫⚪ 五子棋 · 聪明AI版</h1>
+
+    <div class="mode-toggle">
+      <label><input type="radio" name="mode" value="pvp" checked> 双人对战</label>
+      <label><input type="radio" name="mode" value="ai"> 人机对战（你执黑）</label>
     </div>
 
-    <script>
-        // 焰色反应数据
-        const flameTests = [
-            {
-                name: "锂盐",
-                formula: "LiCl",
-                element: "锂 (Li)",
-                color: "#ff3300", // 深红
-                description: "锂离子在火焰中呈现深红色。锂是碱金属元素，其焰色反应非常明显。",
-                rgb: "255, 51, 0"
-            },
-            {
-                name: "钠盐",
-                formula: "NaCl",
-                element: "钠 (Na)",
-                color: "#ffff00", // 黄色
-                description: "钠离子产生强烈的黄色火焰，这是最常见的焰色反应之一。即使微量钠杂质也会掩盖其他元素的焰色。",
-                rgb: "255, 255, 0"
-            },
-            {
-                name: "钾盐",
-                formula: "KCl",
-                element: "钾 (K)",
-                color: "#cc99ff", // 淡紫
-                description: "钾离子呈现淡紫色火焰。由于钠的黄色焰色非常强烈，通常需要通过钴玻璃观察以滤除黄光。",
-                rgb: "204, 153, 255"
-            },
-            {
-                name: "钙盐",
-                formula: "CaCl₂",
-                element: "钙 (Ca)",
-                color: "#ff9900", // 橙红
-                description: "钙离子产生橙红色火焰。钙是人体必需的矿物质，在骨骼和牙齿中含量丰富。",
-                rgb: "255, 153, 0"
-            },
-            {
-                name: "锶盐",
-                formula: "Sr(NO₃)₂",
-                element: "锶 (Sr)",
-                color: "#ff0066", // 洋红
-                description: "锶离子呈现鲜艳的洋红色火焰。锶盐常用于制造红色烟花和信号弹。",
-                rgb: "255, 0, 102"
-            },
-            {
-                name: "钡盐",
-                formula: "BaCl₂",
-                element: "钡 (Ba)",
-                color: "#00ff00", // 绿色
-                description: "钡离子产生苹果绿色火焰。钡盐有毒，但在医学上用作X光造影剂（硫酸钡）。",
-                rgb: "0, 255, 0"
-            },
-            {
-                name: "铜盐",
-                formula: "CuCl₂",
-                element: "铜 (Cu)",
-                color: "#00ccff", // 蓝绿
-                description: "铜离子呈现蓝绿色火焰。铜是重要的工业金属，具有良好的导电性和导热性。",
-                rgb: "0, 204, 255"
-            },
-            {
-                name: "铷盐",
-                formula: "RbCl",
-                element: "铷 (Rb)",
-                color: "#ff6699", // 紫红
-                description: "铷离子呈现紫红色火焰。铷是一种稀有碱金属，在原子钟中有重要应用。",
-                rgb: "255, 102, 153"
+    <div id="info">
+      <div>⏱️ 时间: <span id="timer">00:00</span></div>
+      <div>👣 步数: <span id="stepCount">0</span></div>
+    </div>
+
+    <div id="status">黑方先行</div>
+    <div id="board"></div>
+
+    <div class="controls">
+      <button id="undoBtn" onclick="undo()">悔棋</button>
+      <button onclick="restart()">重新开始</button>
+    </div>
+  </div>
+
+  <script>
+    // ========== 音频 ==========
+    function playSound(frequency, duration = 0.1, type = 'sine') {
+      if (!window.AudioContext) return;
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + duration);
+    }
+    function playPlaceSound() { playSound(600, 0.1, 'sine'); }
+    function playWinSound() {
+      playSound(523, 0.2, 'sine');
+      setTimeout(() => playSound(659, 0.2, 'sine'), 200);
+      setTimeout(() => playSound(784, 0.3, 'sine'), 400);
+    }
+
+    // ========== 游戏状态 ==========
+    const BOARD_SIZE = 15;
+    let board = [];
+    let currentPlayer = 1;
+    let gameOver = false;
+    let moveHistory = [];
+    let startTime = null;
+    let stepCount = 0;
+    let gameMode = 'pvp';
+    let cursorRow = 7, cursorCol = 7;
+    let cursorEl = null;
+
+    const statusEl = document.getElementById('status');
+    const boardEl = document.getElementById('board');
+    const timerEl = document.getElementById('timer');
+    const stepCountEl = document.getElementById('stepCount');
+
+    document.querySelectorAll('input[name="mode"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        gameMode = radio.value;
+        restart();
+      });
+    });
+
+    // ========== 初始化 ==========
+    function initBoard() {
+      boardEl.innerHTML = '';
+      board = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
+      for (let row = 0; row < BOARD_SIZE; row++) {
+        for (let col = 0; col < BOARD_SIZE; col++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+          cell.addEventListener('click', () => placeStone(row, col));
+          boardEl.appendChild(cell);
+        }
+      }
+      if (cursorEl) cursorEl.remove();
+      cursorEl = document.createElement('div');
+      cursorEl.className = 'cursor';
+      cursorEl.style.top = (10 + cursorRow * 31) + 'px';
+      cursorEl.style.left = (10 + cursorCol * 31) + 'px';
+      boardEl.appendChild(cursorEl);
+      updateCursor();
+    }
+    function updateCursor() {
+      if (!cursorEl) return;
+      cursorEl.style.top = (10 + cursorRow * 31) + 'px';
+      cursorEl.style.left = (10 + cursorCol * 31) + 'px';
+    }
+
+    // ========== 落子 ==========
+    function placeStone(row, col) {
+      if (gameOver || board[row][col] !== 0) return;
+      board[row][col] = currentPlayer;
+      moveHistory.push([row, col]);
+      stepCount++;
+      stepCountEl.textContent = stepCount;
+
+      const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+      cell.textContent = currentPlayer === 1 ? '●' : '○';
+      cell.style.color = currentPlayer === 1 ? 'black' : 'white';
+      playPlaceSound();
+
+      if (checkWin(row, col)) {
+        statusEl.textContent = currentPlayer === 1 ? '🎉 黑方获胜！' : '🎉 白方获胜！';
+        playWinSound();
+        gameOver = true;
+        return;
+      }
+
+      currentPlayer = currentPlayer === 1 ? 2 : 1;
+      if (gameMode === 'ai' && currentPlayer === 2 && !gameOver) {
+        setTimeout(aiMove, 200); // AI 思考 200ms
+      } else {
+        updateStatus();
+      }
+    }
+    function updateStatus() {
+      statusEl.textContent = currentPlayer === 1 ? '轮到黑方' : '轮到白方';
+    }
+
+    // ========== 胜负判断 ==========
+    function checkWin(row, col) {
+      const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+      for (const [dx, dy] of dirs) {
+        let count = 1;
+        for (let i = 1; i <= 4; i++) {
+          const r = row + dx*i, c = col + dy*i;
+          if (r<0||r>=BOARD_SIZE||c<0||c>=BOARD_SIZE) break;
+          if (board[r][c] === board[row][col]) count++; else break;
+        }
+        for (let i = 1; i <= 4; i++) {
+          const r = row - dx*i, c = col - dy*i;
+          if (r<0||r>=BOARD_SIZE||c<0||c>=BOARD_SIZE) break;
+          if (board[r][c] === board[row][col]) count++; else break;
+        }
+        if (count >= 5) return true;
+      }
+      return false;
+    }
+
+    // ========== 【核心】聪明AI ========== 
+    function aiMove() {
+      if (gameOver) return;
+
+      // Step 1: 找出所有“附近有棋子”的空位（候选点）
+      const candidates = getCandidateMoves();
+
+      // Step 2: 检查是否能直接获胜
+      for (const [row, col] of candidates) {
+        board[row][col] = 2;
+        if (checkWin(row, col)) {
+          board[row][col] = 0;
+          placeStone(row, col);
+          return;
+        }
+        board[row][col] = 0;
+      }
+
+      // Step 3: 检查是否需要紧急防守（对手下一手能赢？）
+      for (const [row, col] of candidates) {
+        board[row][col] = 1;
+        if (checkWin(row, col)) {
+          board[row][col] = 0;
+          placeStone(row, col); // 立即堵住
+          return;
+        }
+        board[row][col] = 0;
+      }
+
+      // Step 4: 评估所有候选点（带模式识别）
+      let bestScore = -Infinity;
+      let bestMove = candidates[0] || [7,7];
+
+      for (const [row, col] of candidates) {
+        const score = evaluatePositionSmart(row, col);
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = [row, col];
+        }
+      }
+
+      placeStone(bestMove[0], bestMove[1]);
+    }
+
+    // 获取候选落子点（靠近已有棋子的空位）
+    function getCandidateMoves() {
+      const candidates = new Set();
+      for (let row = 0; row < BOARD_SIZE; row++) {
+        for (let col = 0; col < BOARD_SIZE; col++) {
+          if (board[row][col] !== 0) {
+            for (let dr = -2; dr <= 2; dr++) {
+              for (let dc = -2; dc <= 2; dc++) {
+                const r = row + dr, c = col + dc;
+                if (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && board[r][c] === 0) {
+                  candidates.add(`${r},${c}`);
+                }
+              }
             }
+          }
+        }
+      }
+      return Array.from(candidates).map(pos => pos.split(',').map(Number));
+    }
+
+    // 【智能评估函数】识别关键棋型
+    function evaluatePositionSmart(row, col) {
+      board[row][col] = 2; // 临时设为AI
+      const attackScore = getPatternScore(row, col, 2);
+      board[row][col] = 1; // 临时设为玩家
+      const defenseScore = getPatternScore(row, col, 1) * 1.1; // 防守权重略高
+      board[row][col] = 0; // 还原
+
+      return Math.max(attackScore, defenseScore);
+    }
+
+    // 检查某个位置对某方的价值（基于棋型）
+    function getPatternScore(row, col, player) {
+      let totalScore = 0;
+      const directions = [[0,1],[1,0],[1,1],[1,-1]];
+
+      for (const [dx, dy] of directions) {
+        let line = '';
+        // 向两边各取5格
+        for (let i = -4; i <= 4; i++) {
+          const r = row + dx * i;
+          const c = col + dy * i;
+          if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) {
+            line += 'X'; // 边界
+          } else if (r === row && c === col) {
+            line += player; // 当前测试点
+          } else {
+            line += board[r][c] || '0'; // 0=空
+          }
+        }
+
+        // 定义棋型分数（简化版）
+        const patterns = [
+          { pattern: /22222/, score: 100000 }, // 五连
+          { pattern: /022220/, score: 50000 }, // 活四
+          { pattern: /[1X]22220|02222[1X]/, score: 40000 }, // 冲四
+          { pattern: /02220/, score: 5000 },   // 活三
+          { pattern: /022020|020220/, score: 4500 }, // 特殊活三
+          { pattern: /[1X]22200|00222[1X]/, score: 3000 }, // 眠三
+          { pattern: /0220/, score: 500 },     // 活二
         ];
-        
-        // 初始化化学品列表
-        function initChemicals() {
-            const chemicalList = document.getElementById('chemical-list');
-            
-            flameTests.forEach((test, index) => {
-                const item = document.createElement('div');
-                item.className = 'chemical-item';
-                item.dataset.index = index;
-                item.innerHTML = `
-                    <div style="font-size: 2rem;">🧪</div>
-                    <div class="chemical-name">${test.name}<br><small>${test.formula}</small></div>
-                `;
-                item.addEventListener('click', () => selectChemical(index));
-                chemicalList.appendChild(item);
-            });
+
+        for (const {pattern, score} of patterns) {
+          if (pattern.test(line)) {
+            totalScore += score;
+          }
         }
-        
-        // 选择化学品
-        function selectChemical(index) {
-            const selectedTest = flameTests[index];
-            
-            // 更新选中状态
-            document.querySelectorAll('.chemical-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-            document.querySelector(`.chemical-item[data-index="${index}"]`).classList.add('selected');
-            
-            // 更新火焰颜色
-            const flame = document.getElementById('flame');
-            const flameCore = document.getElementById('flame-core');
-            const colorDisplay = document.getElementById('color-display');
-            const colorName = document.getElementById('color-name');
-            const elementInfo = document.getElementById('element-info');
-            
-            // 激活火焰
-            flame.classList.add('active');
-            flameCore.classList.add('active');
-            
-            // 设置火焰颜色
-            flame.style.background = `conic-gradient(from 0deg, 
-                ${selectedTest.color}, 
-                ${adjustColor(selectedTest.color, 20)}, 
-                ${adjustColor(selectedTest.color, -20)}, 
-                ${selectedTest.color})`;
-            
-            // 设置核心颜色（更亮）
-            flameCore.style.background = `conic-gradient(from 0deg, 
-                ${adjustColor(selectedTest.color, 60)}, 
-                ${adjustColor(selectedTest.color, 40)}, 
-                ${adjustColor(selectedTest.color, 60)})`;
-            
-            // 更新信息面板
-            colorDisplay.style.backgroundColor = selectedTest.color;
-            colorDisplay.textContent = selectedTest.element;
-            colorName.textContent = getChineseColorName(selectedTest.color);
-            elementInfo.innerHTML = `
-                <strong>${selectedTest.element}</strong><br>
-                ${selectedTest.description}
-                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(100, 200, 255, 0.2);">
-                    <strong>化学式:</strong> ${selectedTest.formula}<br>
-                    <strong>RGB值:</strong> ${selectedTest.rgb}
-                </div>
-            `;
-        }
-        
-        // 调整颜色亮度
-        function adjustColor(hex, percent) {
-            // 移除#号
-            hex = hex.replace('#', '');
-            
-            // 解析RGB
-            let r = parseInt(hex.substring(0, 2), 16);
-            let g = parseInt(hex.substring(2, 4), 16);
-            let b = parseInt(hex.substring(4, 6), 16);
-            
-            // 调整亮度
-            r = Math.min(255, Math.max(0, r + (percent * 2.55)));
-            g = Math.min(255, Math.max(0, g + (percent * 2.55)));
-            b = Math.min(255, Math.max(0, b + (percent * 2.55)));
-            
-            // 返回新颜色
-            return `#${Math.round(r).toString(16).padStart(2, '0')}${Math.round(g).toString(16).padStart(2, '0')}${Math.round(b).toString(16).padStart(2, '0')}`;
-        }
-        
-        // 获取中文颜色名称
-        function getChineseColorName(hex) {
-            const colorMap = {
-                '#ff3300': '深红色',
-                '#ffff00': '黄色',
-                '#cc99ff': '淡紫色',
-                '#ff9900': '橙红色',
-                '#ff0066': '洋红色',
-                '#00ff00': '绿色',
-                '#00ccff': '蓝绿色',
-                '#ff6699': '紫红色'
-            };
-            return colorMap[hex] || '未知颜色';
-        }
-        
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            initChemicals();
-            
-            // 默认选择钠盐（最常见）
-            setTimeout(() => {
-                selectChemical(1);
-            }, 500);
-        });
-    </script>
+      }
+      return totalScore;
+    }
+
+    // ========== 悔棋 & 重开 ==========
+    function undo() {
+      if (moveHistory.length === 0 || gameOver) return;
+      const last = moveHistory.pop();
+      board[last[0]][last[1]] = 0;
+      stepCount--;
+      stepCountEl.textContent = stepCount;
+      document.querySelector(`.cell[data-row="${last[0]}"][data-col="${last[1]}"]`).textContent = '';
+      currentPlayer = currentPlayer === 1 ? 2 : 1;
+      gameOver = false;
+
+      if (gameMode === 'ai' && currentPlayer === 2 && moveHistory.length > 0) {
+        const prev = moveHistory.pop();
+        board[prev[0]][prev[1]] = 0;
+        stepCount--;
+        stepCountEl.textContent = stepCount;
+        document.querySelector(`.cell[data-row="${prev[0]}"][data-col="${prev[1]}"]`).textContent = '';
+        currentPlayer = 1;
+      }
+      updateStatus();
+    }
+
+    function restart() {
+      clearInterval(window.timerInterval);
+      startTime = Date.now();
+      stepCount = 0;
+      stepCountEl.textContent = '0';
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      timerEl.textContent = '00:00';
+      window.timerInterval = setInterval(() => {
+        const e = Math.floor((Date.now() - startTime) / 1000);
+        timerEl.textContent = `${String(Math.floor(e/60)).padStart(2,'0')}:${String(e%60).padStart(2,'0')}`;
+      }, 1000);
+
+      currentPlayer = 1;
+      gameOver = false;
+      moveHistory = [];
+      initBoard();
+      updateStatus();
+    }
+
+    // ========== 键盘控制 ==========
+    document.addEventListener('keydown', (e) => {
+      if (gameOver) return;
+      switch (e.key) {
+        case 'ArrowUp':    cursorRow = Math.max(0, cursorRow - 1); break;
+        case 'ArrowDown':  cursorRow = Math.min(14, cursorRow + 1); break;
+        case 'ArrowLeft':  cursorCol = Math.max(0, cursorCol - 1); break;
+        case 'ArrowRight': cursorCol = Math.min(14, cursorCol + 1); break;
+        case 'Enter':
+        case ' ':
+          e.preventDefault();
+          placeStone(cursorRow, cursorCol);
+          break;
+      }
+      updateCursor();
+    });
+
+    // ========== 启动 ==========
+    restart();
+  </script>
 </body>
 </html>
